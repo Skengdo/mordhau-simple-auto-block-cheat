@@ -1,7 +1,6 @@
 #pragma once
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-// Windows Header Files
 #include <windows.h>
 #include <iostream>
 #include <chrono>
@@ -17,8 +16,8 @@ using namespace SDK;
 
 namespace Utils
 {
-	namespace Maths
-	{
+	namespace Maths	{
+
 		float WorldDistance( const FVector& vector, const FVector& Target )
 		{
 			return float( sqrtf( powf( vector.X - Target.X, 2.0 ) + powf( vector.Y - Target.Y, 2.0 ) + powf( vector.Z - Target.Z, 2.0 ) ) );
@@ -33,30 +32,44 @@ void __stdcall init_sdk( )
 
 	const auto gname_addr = Utils::Pattern::FindPattern( ( PBYTE )Utils::Variables::ImageBase, Utils::Variables::ImageModuleInfo.SizeOfImage, ( PBYTE )"\x48\x8B\x05\x00\x00\x00\x00\x48\x85\xC0\x75\x5F", ( CHAR* )"xxx????xxxxx", 0 );
 	auto offset = *( uint32_t* )( gname_addr + 3 );
-	SDK::FName::GNames = ( SDK::TNameEntryArray* )( *( uintptr_t* )( gname_addr + 7 + offset ) );
+	FName::GNames = ( TNameEntryArray* )( *( uintptr_t* )( gname_addr + 7 + offset ) );
 
 	const auto objects_addr = Utils::Pattern::FindPattern( ( PBYTE )Utils::Variables::ImageBase, Utils::Variables::ImageModuleInfo.SizeOfImage, ( PBYTE )"\x4C\x8B\x15\x00\x00\x00\x00\x8D\x43\x01", ( CHAR* )"xxx????xxx", 0 );
 	offset = *( int32_t* )( objects_addr + 3 );
-	SDK::TUObjectArray::g_objects = ( uintptr_t )( objects_addr + 7 + offset ) - ( uintptr_t )GetModuleHandleA( 0 );
+	TUObjectArray::g_objects = ( uintptr_t )( objects_addr + 7 + offset ) - ( uintptr_t )GetModuleHandleA( 0 );
 
 	const auto total_objects_addr = Utils::Pattern::FindPattern( ( PBYTE )Utils::Variables::ImageBase, Utils::Variables::ImageModuleInfo.SizeOfImage, ( PBYTE )"\x4C\x8B\x15\x00\x00\x00\x00\x8D\x43\x01", ( CHAR* )"xxx????xxx", 0 );
 	offset = *( int32_t* )( total_objects_addr + 3 );
-	SDK::TUObjectArray::g_total_objects = ( uintptr_t )( total_objects_addr + 7 + offset ) - ( uintptr_t )GetModuleHandleA( 0 );
+	TUObjectArray::g_total_objects = ( uintptr_t )( total_objects_addr + 7 + offset ) - ( uintptr_t )GetModuleHandleA( 0 );
 }
 
 void __stdcall init_cheat( )
 {
 	init_sdk( );
 
-	const auto addr_UWorld = Utils::Pattern::FindPattern( ( PBYTE )Utils::Variables::ImageBase, Utils::Variables::ImageModuleInfo.SizeOfImage, ( PBYTE )"\x48\x8B\x1D\x00\x00\x00\x00\x48\x85\xDB\x74\x3B\x41\xB0\x01", ( CHAR* )"xxx????xxxxxxxx", 0 );
-	const auto p_UWorld = *reinterpret_cast< UWorld** >( addr_UWorld + 7 + *reinterpret_cast< uint32_t* > ( addr_UWorld + 3 ) );
+#if _DEBUG
+	Utils::allocate_console( );
+#endif
+
+	const auto uworld_addr = Utils::Pattern::FindPattern( ( PBYTE )Utils::Variables::ImageBase, Utils::Variables::ImageModuleInfo.SizeOfImage, ( PBYTE )"\x48\x8B\x1D\x00\x00\x00\x00\x48\x85\xDB\x74\x3B\x41\xB0\x01", ( CHAR* )"xxx????xxxxxxxx", 0 );
+	const auto p_uworld = *reinterpret_cast< UWorld** >( uworld_addr + 7 + *reinterpret_cast< uint32_t* > ( uworld_addr + 3 ) );
 
 	while ( true )
 	{
 		if ( GetAsyncKeyState( VK_F12 ) )
 			FreeLibraryAndExitThread( Utils::Variables::ImageModuleHandle, 0 );
 
-		const auto local_player = p_UWorld->OwningGameInstance->LocalPlayers [ 0 ];
+		const auto presistent_level = p_uworld->PersistentLevel;
+
+		if ( presistent_level == nullptr )
+			continue;
+
+		const auto game_instance = p_uworld->OwningGameInstance;
+
+		if ( game_instance == nullptr )
+			continue;
+
+		const auto local_player = game_instance->LocalPlayers [ 0 ];
 
 		if ( local_player == nullptr )
 			continue;
@@ -86,9 +99,9 @@ void __stdcall init_cheat( )
 		if ( local_mordhau_player_state == nullptr )
 			continue;
 
-		for ( auto i = 0u; i < p_UWorld->PersistentLevel->actors.Num( ); i++ )
+		for ( auto i = 0u; i < presistent_level->actors.Num( ); i++ )
 		{
-			const auto curr_actor = p_UWorld->PersistentLevel->actors [ i ];
+			const auto curr_actor = presistent_level->actors [ i ];
 
 			if ( curr_actor == nullptr || curr_actor == local_actor )
 				continue;

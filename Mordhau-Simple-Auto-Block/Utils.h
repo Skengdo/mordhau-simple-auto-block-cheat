@@ -8,7 +8,9 @@
 #pragma once
 
 namespace Utils {
+
 	namespace Pattern {
+
 		bool DataCompare(PBYTE pData, PBYTE bSig, char* szMask) {
 			for (; *szMask; ++szMask, ++pData, ++bSig) {
 				if (*szMask == 'x' && *pData != *bSig)
@@ -26,12 +28,16 @@ namespace Utils {
 			return 0;
 		}
 	}
+
 	namespace Variables {
+
 		unsigned __int64 ImageBase;
 		HMODULE ImageModuleHandle;
 		MODULEINFO ImageModuleInfo;
 	}
+
 	namespace Mordhau {
+
 		enum bone_ids : int32_t
 		{
 			Global = 0,
@@ -204,5 +210,11 @@ namespace Utils {
 			LowerBack_Spine,
 			LowerBack_Spine1
 		};
+	}
+
+	void allocate_console( )
+	{
+		AllocConsole( );
+		freopen( "CONOUT$", "w", stdout );
 	}
 }
