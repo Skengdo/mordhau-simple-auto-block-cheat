@@ -56,6 +56,8 @@ void __stdcall init_cheat( )
 
 	while ( true )
 	{
+		std::this_thread::sleep_for( std::chrono::milliseconds( 25 ) );
+
 		if ( GetAsyncKeyState( VK_F12 ) )
 			FreeLibraryAndExitThread( Utils::Variables::ImageModuleHandle, 0 );
 
@@ -119,8 +121,8 @@ void __stdcall init_cheat( )
 			if ( curr_mordau_player_state == nullptr )
 				continue;
 
-			if ( curr_mordau_player_state->Team == local_mordhau_player_state->Team )
-				continue;
+			//if ( curr_mordau_player_state->Team == local_mordhau_player_state->Team )
+			//	continue;
 
 			const auto curr_actor_root_comp = curr_actor->RootComponent;
 
@@ -136,29 +138,46 @@ void __stdcall init_cheat( )
 				if ( current_motion == nullptr )
 					continue;
 
-				if ( current_motion->IsA( UAttackMotion::StaticClass( ) ) && static_cast< UAttackMotion* >( current_motion )->Stage == EAttackStage::Release )
+				if ( current_motion->IsA( UAttackMotion::StaticClass( ) ) )
 				{
-					switch ( static_cast< UAttackMotion* >( current_motion )->Move )
+					switch ( static_cast< UAttackMotion* >( current_motion )->Stage )
 					{
+					case EAttackStage::Release:
+					{
+						switch ( static_cast< UAttackMotion* >( current_motion )->Move )
+						{
 
-					case EAttackMove::Kick:
-					{
-						local_mordhau_character->RequestKick( );
-					}
+						case EAttackMove::Kick:
+						{
+							local_mordhau_character->RequestKick( );
+							break;
+						}
 
-					default:
-					{
-						local_mordhau_character->RequestParry( EBlockType::Regular, 1 );
+						case EAttackMove::Stab:
+						{
+							local_mordhau_character->RequestAttack( EAttackMove::Stab, 10.f );
+							break;
+						}
+
+						default:
+						{
+							local_mordhau_character->RequestParry( EBlockType::Regular, 1 );
+							break;
+						}
+						}
 						break;
 					}
-
+					case EAttackStage::Recovery:
+					{
+						local_mordhau_character->RequestRightStab( );
+						break;
 					}
-					break;
+					default:
+						break;
+					}
 				}
 			}
 		}
-
-		std::this_thread::sleep_for( std::chrono::milliseconds( 10 ) );
 	}
 }
 
