@@ -8,6 +8,7 @@
 ### Features: ###
 * Auto-Block Swings/Stabs
 * Auto-Block Kicks
+* Auto-Stab
 
 F12 To Unload The Module.
 
@@ -17,4 +18,5 @@ Unknowncheats.me Post: <https://www.unknowncheats.me/forum/other-fps-games/35982
 
 - [x] Add Auto-Block Melee
 - [x] Add Auto-Block Kicks
+- [x] Add Auto-Stab
 - [ ] Add Auto-Look To Melee or Kick
