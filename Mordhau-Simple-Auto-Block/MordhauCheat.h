@@ -138,7 +138,22 @@ void __stdcall init_cheat( )
 
 				if ( current_motion->IsA( UAttackMotion::StaticClass( ) ) && static_cast< UAttackMotion* >( current_motion )->Stage == EAttackStage::Release )
 				{
-					local_mordhau_character->RequestParry( EBlockType::Regular, 1 );
+					switch ( static_cast< UAttackMotion* >( current_motion )->Move )
+					{
+
+					case EAttackMove::Kick:
+					{
+						local_mordhau_character->RequestKick( );
+					}
+
+					default:
+					{
+						local_mordhau_character->RequestParry( EBlockType::Regular, 1 );
+						break;
+					}
+
+					}
+					break;
 				}
 			}
 		}
