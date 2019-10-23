@@ -121,8 +121,8 @@ void __stdcall init_cheat( )
 			if ( curr_mordau_player_state == nullptr )
 				continue;
 
-			//if ( curr_mordau_player_state->Team == local_mordhau_player_state->Team )
-			//	continue;
+			if ( curr_mordau_player_state->Team == local_mordhau_player_state->Team )
+				continue;
 
 			const auto curr_actor_root_comp = curr_actor->RootComponent;
 
